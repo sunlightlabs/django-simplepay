@@ -1,0 +1,6 @@
+<form action="https://{{ host }}{{ path }}" method="post">
+	<ul>
+		{{ form.as_ul }}
+		<li>{% block simplepay_submit %}{% endblock %}</li>
+	</ul>
+</form>

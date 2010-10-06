@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+{% load simplepay_tags %}
+<html>
+<head>
+</head>
+<body>
+	{% donation_form dform %}
+	{{ dform.signature.data }}
+	{% payment_form pform %}
+	{{ pform.signature.data }}
+</body>
+</html>
