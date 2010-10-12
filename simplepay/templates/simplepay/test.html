@@ -4,9 +4,9 @@
 <head>
 </head>
 <body>
-	{% donation_form dform %}
-	{{ dform.signature.data }}
-	{% payment_form pform %}
-	{{ pform.signature.data }}
+	{% for form in forms %}
+		{% simplepay_form form %}
+		{{ form.signature.data }}
+	{% endfor %}
 </body>
 </html>

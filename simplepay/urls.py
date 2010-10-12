@@ -1,24 +1,22 @@
 from django.conf.urls.defaults import *
 from django.shortcuts import render_to_response
-from simplepay.forms import PaymentForm, DonationForm
+from simplepay.forms import DonationForm, PaymentForm
+from simplepay.models import DonationButton, PaymentButton, SimplePayButton
 
 def index(request):
     
-    dform = DonationForm({
-        'amount': '23.30',
-        'description': 'donation to Sunlight Foundation',
-    })
-    dform.generate_signature()
+    forms = []
+    for btn in SimplePayButton.objects.all():
+        form = btn.get_form()
+        form.generate_signature()
+        forms.append(form)
+        print form
     
-    pform = PaymentForm({
-        'amount': '23.30',
-        'description': 'donation to Sunlight Foundation',
-    })
-    pform.generate_signature()
-    
-    return render_to_response('simplepay/test.html', {'pform': pform, 'dform': dform})
+    return render_to_response('simplepay/test.html', {'forms': forms})
 
 urlpatterns = patterns('simplepay.views',
     url(r'^button/(?P<button_id>\d+)/$', 'button'),
+    url(r'^ipn/(?P<reference_id>\d+)/$', 'ipn'),
+    url(r'^ipn/$', 'ipn'),
     url(r'^$', index),
 )

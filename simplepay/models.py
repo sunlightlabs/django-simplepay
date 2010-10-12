@@ -96,3 +96,6 @@ class DonationButton(SimplePayButton):
 class Transaction(models.Model):
     button = models.ForeignKey(SimplePayButton, related_name="transactions")
     reference_id = models.CharField(max_length=128)
+    amount = CurrencyField(decimal_places=2, max_digits=6, blank=True, null=True)
+    status = models.CharField(max_length=16, choices=TRANSACTION_STATUSES, default='pending')
+    
