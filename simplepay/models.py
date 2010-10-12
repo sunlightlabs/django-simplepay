@@ -79,6 +79,12 @@ class SimplePayButton(models.Model):
         else:
             raise ValueError('no form is associated with %s' % self.__class__.__name__)
         return form_class
+    
+    def get_form(self, data=None):
+        form_data = self.as_formdata()
+        form_data.update(data or {})
+        form_class = self.get_form_class()
+        return form_class(form_data)
 
 class PaymentButton(SimplePayButton):
     pass
