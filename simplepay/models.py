@@ -1,6 +1,7 @@
 from decimal import Decimal
 from django.db import models
 from simplepay.forms import DonationForm, PaymentForm
+import datetime
 import uuid
 
 COBRANDING_STYLES = [(s, s) for s in ('logo','banner')]
@@ -17,6 +18,10 @@ TRANSACTION_STATUSES = (
 )
 EXCLUDED_FIELDS = ('id','simplepaybutton_ptr')
 
+#
+# utility methods and classes
+#
+
 def camelcase(s):
     parts = s.split('_')
     return unicode(parts[0] + "".join(s.title() for s in parts[1:]))
@@ -28,6 +33,13 @@ def coerce_type(v):
         return u"%s" % v
     else:
         return v
+    
+def generate_reference_id():
+    return uuid.uuid4().hex
+    
+#
+# field for currency
+#
 
 class CurrencyField(models.DecimalField):
     __metaclass__ = models.SubfieldBase
@@ -38,6 +50,10 @@ class CurrencyField(models.DecimalField):
         except AttributeError:
            return None
 
+#
+# actual models
+#
+
 class SimplePayButton(models.Model):
     amount = CurrencyField(decimal_places=2, max_digits=6, blank=True, null=True)
     description = models.CharField(max_length=128)
@@ -45,9 +61,6 @@ class SimplePayButton(models.Model):
     process_immediate = models.BooleanField(default=True)
     collect_shipping_address = models.BooleanField(default=False)
     immediate_return = models.BooleanField(default=False)
-    abandon_url = models.URLField(verify_exists=False, blank=True)
-    return_url = models.URLField(verify_exists=False, blank=True)
-    ipn_url = models.URLField(verify_exists=False, blank=True)
     
     class Meta:
         ordering = ('description',)
@@ -64,7 +77,7 @@ class SimplePayButton(models.Model):
                 if value:
                     data[camelcase(field.name)] = coerce_type(value)
         return data
-    
+            
     def get_real_obj(self):
         obj = getattr(self, 'donationbutton', None)
         if obj is None:
@@ -95,7 +108,22 @@ class DonationButton(SimplePayButton):
 
 class Transaction(models.Model):
     button = models.ForeignKey(SimplePayButton, related_name="transactions")
-    reference_id = models.CharField(max_length=128)
+    reference_id = models.CharField(max_length=32, default=generate_reference_id)
     amount = CurrencyField(decimal_places=2, max_digits=6, blank=True, null=True)
     status = models.CharField(max_length=16, choices=TRANSACTION_STATUSES, default='pending')
+    date_created = models.DateTimeField(default=datetime.datetime.utcnow)
+    timestamp = models.DateTimeField(default=datetime.datetime.utcnow)
     
+    def __unicode__(self):
+        return self.reference_id
+    
+    def save(self, **kwargs):
+        self.timestamp = datetime.datetime.utcnow()
+        super(Transaction, self).save(**kwargs)
+    
+    def get_form(self, data=None):
+        data = data or {}
+        data['referenceId'] = self.reference_id
+        if self.amount:
+            data['amount'] = self.amount
+        return self.button.get_form(data)

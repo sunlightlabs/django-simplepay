@@ -1,10 +1,12 @@
 from django import forms
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from simplepay import HOST, PATH, ACCESS_KEY, SECRET_KEY
 from urllib import quote
 import base64
 import hashlib
 import hmac
+import uuid
 
 EXCLUDE_FROM_SIGNATURE = ('signature',)
 
@@ -32,6 +34,7 @@ class SimplePayForm(forms.Form):
     signatureVersion = forms.CharField(widget=forms.HiddenInput)
     
     def __init__(self, data=None, **kwargs):
+        
         defaults = {
             'accessKey': ACCESS_KEY,
             'processImmediate': '1',
@@ -39,6 +42,10 @@ class SimplePayForm(forms.Form):
             'signatureVersion': '2',
         }
         defaults.update(data or {})
+        
+        if not defaults.get('referenceId', None):
+            defaults['referenceId'] = uuid.uuid4().hex
+        
         super(SimplePayForm, self).__init__(defaults, **kwargs)
     
     def generate_signature(self):
@@ -55,6 +62,19 @@ class SimplePayForm(forms.Form):
         sig = base64.encodestring(hmac.new(SECRET_KEY, to_sign, hashlib.sha256).digest()).strip()
         
         self.data['signature'] = sig
+    
+    def set_urls(self, request):
+        
+        ref_id = self.data['referenceId']
+        
+        self.data['abandonUrl'] = request.build_absolute_uri(
+            reverse('simplepay_abandon', args=[ref_id]))
+        self.data['ipnUrl'] = request.build_absolute_uri(
+            reverse('simplepay_ipn', args=[ref_id]))
+        self.data['returnUrl'] = request.build_absolute_uri(
+            reverse('simplepay_complete', args=[ref_id]))
+        
+        return self
         
 
 class PaymentForm(SimplePayForm):

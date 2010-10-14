@@ -21,9 +21,20 @@ def button(request, button_id):
         
     return HttpResponse(json.dumps(form.cleaned_data), content_type="application/json")
 
-def ipn(request, reference_id=None):
+def abandon(request, reference_id):
+    print request.GET
+    return HttpResponse('abandon')
+
+def complete(request, reference_id):
+    print request.GET
+    return HttpResponse('complete')
+
+def ipn(request, reference_id):
+
+    if request.method == 'POST':
+        print request.POST
+        api.is_valid_signature(request.POST, request.build_absolute_uri())
     
-    api.is_valid_signature(request.POST, request.build_absolute_uri())
     
-    return HttpResponse('blah')
     
+    return HttpResponse('ipn')
