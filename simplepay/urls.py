@@ -1,16 +1,19 @@
 from django.conf.urls.defaults import *
+from django.http import HttpResponse
 from django.shortcuts import render_to_response
+from simplepay import api
 from simplepay.forms import DonationForm, PaymentForm
 from simplepay.models import DonationButton, PaymentButton, SimplePayButton, Transaction
+from urllib import quote
 
 def index(request):
     
     forms = []
     for txn in Transaction.objects.all():
         form = txn.get_form()
-        form.set_urls(request).generate_signature()
+        form.set_urls(request)
+        form.generate_signature()
         forms.append(form)
-        print form
     
     return render_to_response('simplepay/test.html', {'forms': forms})
 

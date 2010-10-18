@@ -54,7 +54,7 @@ class SimplePayForm(forms.Form):
         for field in sorted(self, cmp=lambda x, y: cmp(x.name, y.name)):
             if field.name not in EXCLUDE_FROM_SIGNATURE:
                 if field.data:
-                    values.append("%s=%s" % (field.name, quote(field.data or '')))
+                    values.append("%s=%s" % (field.name, quote(field.data or '').replace('/', '%2F')))
                 else:
                     del self.fields[field.name]
         
@@ -91,22 +91,3 @@ class DonationForm(SimplePayForm):
         super(DonationForm, self).__init__(data, *args, **kwargs)
     
     # minimumDonationAmount is required if donationType is minimumAmount
-
-# 
-# class IpnForm(forms.Form):
-#     buyerName = forms.CharField()
-#     operation = forms.CharField()
-#     paymentMethod = forms.CharField()
-#     paymentReason = forms.CharField()
-#     recipientEmail = forms.CharField(required=False)
-#     recipientName = forms.CharField()
-#     referenceId = forms.CharField(required=False)
-#     signature = forms.CharField()
-#     status = forms.CharField()
-#     transactionAmount = forms.CharField()
-#     transactionDate = forms.CharField()
-#     transactionId = forms.CharField()
-#     
-#     def verify_signature(self):
-#         pass
-    

@@ -11,10 +11,22 @@ DONATION_TYPES = (
     ('anyAmount', 'Any Amount'),
 )
 TRANSACTION_STATUSES = (
-    ('pending', 'Pending'),
-    ('complete', 'Complete'),
-    ('cancelled', 'Cancelled'),
-    ('failed', 'Failed'),
+    ('A', 'Abandoned.'),
+    ('ME', 'Merchant error'),
+    ('PS', 'Success'),
+    ('PF', 'Failed'),
+    ('PI', 'Initiated'),
+    ('PR', 'Reserve success'),
+    ('RS', 'Refund success'),
+    ('RF', 'Refund error'),
+    ('SE', 'Service error'),
+    ('SF', 'Subscription failed'),
+    ('SI', 'Subscription initiated'),
+    ('SR', 'Fee accepted'),
+    ('SS', 'Subscription complete'),
+    ('UE', 'Donation amount less than minimum'),
+    ('UF', 'Invalid subscription payment method'),
+    ('US', 'Updated subscription payment method'),
 )
 EXCLUDED_FIELDS = ('id','simplepaybutton_ptr')
 
@@ -110,7 +122,7 @@ class Transaction(models.Model):
     button = models.ForeignKey(SimplePayButton, related_name="transactions")
     reference_id = models.CharField(max_length=32, default=generate_reference_id)
     amount = CurrencyField(decimal_places=2, max_digits=6, blank=True, null=True)
-    status = models.CharField(max_length=16, choices=TRANSACTION_STATUSES, default='pending')
+    status = models.CharField(max_length=2, choices=TRANSACTION_STATUSES, default='pending')
     date_created = models.DateTimeField(default=datetime.datetime.utcnow)
     timestamp = models.DateTimeField(default=datetime.datetime.utcnow)
     
@@ -127,3 +139,14 @@ class Transaction(models.Model):
         if self.amount:
             data['amount'] = self.amount
         return self.button.get_form(data)
+
+class Message(models.Model):
+    transaction = models.ForeignKey(Transaction, related_name="messages")
+    content = models.TextField()
+    timestamp = models.DateTimeField(default=datetime.datetime.utcnow)
+    
+    class Meta:
+        ordering = ('-timestamp',)
+    
+    def __unicode__(self):
+        return self.timestamp.isoformat()
