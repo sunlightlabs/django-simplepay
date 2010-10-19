@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import render_to_response
+from django.views.decorators.csrf import csrf_exempt
 from simplepay import ACCESS_KEY, SECRET_KEY, HOST, PATH
 from simplepay import api
 from simplepay.models import SimplePayButton, Transaction, Message
@@ -67,7 +68,7 @@ def complete(request, reference_id):
         return HttpResponseRedirect(REDIRECT)
     return render_to_response('simplepay/transaction_complete.html')
 
-
+@csrf_exempt
 def ipn(request, reference_id):
     """ Process an IPN response from Amazon.
     """

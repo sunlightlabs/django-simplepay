@@ -11,7 +11,7 @@ DONATION_TYPES = (
     ('anyAmount', 'Any Amount'),
 )
 TRANSACTION_STATUSES = (
-    ('A', 'Abandoned.'),
+    ('A', 'Abandoned'),
     ('ME', 'Merchant error'),
     ('PS', 'Success'),
     ('PF', 'Failed'),
@@ -27,6 +27,7 @@ TRANSACTION_STATUSES = (
     ('UE', 'Donation amount less than minimum'),
     ('UF', 'Invalid subscription payment method'),
     ('US', 'Updated subscription payment method'),
+    ('XX', 'Not yet sent to payment'),
 )
 EXCLUDED_FIELDS = ('id','simplepaybutton_ptr')
 
@@ -122,7 +123,7 @@ class Transaction(models.Model):
     button = models.ForeignKey(SimplePayButton, related_name="transactions")
     reference_id = models.CharField(max_length=32, default=generate_reference_id)
     amount = CurrencyField(decimal_places=2, max_digits=6, blank=True, null=True)
-    status = models.CharField(max_length=2, choices=TRANSACTION_STATUSES, default='pending')
+    status = models.CharField(max_length=2, choices=TRANSACTION_STATUSES, default='XX')
     date_created = models.DateTimeField(default=datetime.datetime.utcnow)
     timestamp = models.DateTimeField(default=datetime.datetime.utcnow)
     
