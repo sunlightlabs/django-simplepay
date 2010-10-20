@@ -54,7 +54,7 @@ class SimplePayForm(forms.Form):
         for field in sorted(self, cmp=lambda x, y: cmp(x.name, y.name)):
             if field.name not in EXCLUDE_FROM_SIGNATURE:
                 if field.data:
-                    values.append("%s=%s" % (field.name, quote(field.data or '').replace('/', '%2F')))
+                    values.append("%s=%s" % (field.name, quote(str(field.data) or '').replace('/', '%2F')))
                 else:
                     del self.fields[field.name]
         
