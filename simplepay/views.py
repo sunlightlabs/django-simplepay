@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
-from django.shortcuts import render_to_response
+from django.shortcuts import get_object_or_404, render_to_response
 from django.views.decorators.csrf import csrf_exempt
 from simplepay import ACCESS_KEY, SECRET_KEY, HOST, PATH
 from simplepay import api
@@ -24,8 +24,26 @@ def button(request, button_id):
         form_data['amount'] = request.GET['amount']
         
     form = form_class(form_data)
+    form.set_urls(request)
     form.generate_signature()
     
+    if not form.is_valid():
+        pass
+        
+    return HttpResponse(json.dumps(form.cleaned_data), content_type="application/json")
+
+def transaction(request, reference_id):
+    
+    txn = get_object_or_404(Transaction, reference_id=reference_id)
+    
+    form = txn.get_form()
+    
+    if 'amount' in request.GET:
+        form.data['amount'] = request.GET['amount']
+        
+    form.set_urls(request)
+    form.generate_signature()
+
     if not form.is_valid():
         pass
         

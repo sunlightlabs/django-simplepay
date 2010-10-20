@@ -19,6 +19,7 @@ def index(request):
 
 urlpatterns = patterns('simplepay.views',
     url(r'^button/(?P<button_id>\d+)/$', 'button'),
+    url(r'^transaction/(?P<reference_id>\w{32})/$', 'transaction'),
     url(r'^(?P<reference_id>\w{32})/$', 'complete', name='simplepay_complete'),
     url(r'^(?P<reference_id>\w{32})/abandon/$', 'abandon', name='simplepay_abandon'),
     url(r'^(?P<reference_id>\w{32})/ipn/$', 'ipn', name='simplepay_ipn'),
