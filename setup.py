@@ -4,7 +4,7 @@ long_description = open('README.rst').read()
 
 setup(
     name='django-simplepay',
-    version="0.1",
+    version="0.2",
     packages=['simplepay'],
     package_dir={'simplepay': 'simplepay'},
     package_data={'simplepay': ['templates/simplepay/*.html']},

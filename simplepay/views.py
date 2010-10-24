@@ -5,9 +5,14 @@ from django.views.decorators.csrf import csrf_exempt
 from simplepay import ACCESS_KEY, SECRET_KEY, HOST, PATH
 from simplepay import api
 from simplepay.models import SimplePayButton, Transaction, Message
+import datetime
 import json
 
 REDIRECT = getattr(settings, 'SIMPLEPAY_COMPLETE_REDIRECT', None)
+
+def _parse_date(ds):
+    ts = int(ds)
+    return datetime.datetime.fromtimestamp(ts)
 
 def button(request, button_id):
     """ Return a JSON representation of button values.
@@ -111,6 +116,18 @@ def _update_transaction(reference_id, data):
         if ' ' in amt:
             amt = amt.split(' ')[1]
         txn.amount = amt
+    
+    if 'transactionDate' in data:
+        txn.date_processed = _parse_date(data['transactionDate'])
+
+    if 'transactionId' in data:
+        txn.amazon_id = data['transactionId']
+    
+    if 'buyerName' in data:
+        txn.name = data['buyerName']
+    
+    if 'buyerEmail' in data:
+        txn.email = data['buyerEmail']
     
     txn.save()
     

@@ -122,9 +122,13 @@ class DonationButton(SimplePayButton):
 class Transaction(models.Model):
     button = models.ForeignKey(SimplePayButton, related_name="transactions")
     reference_id = models.CharField(max_length=32, default=generate_reference_id)
+    amazon_id = models.CharField(max_length=64, blank=True)
     amount = CurrencyField(decimal_places=2, max_digits=6, blank=True, null=True)
     status = models.CharField(max_length=2, choices=TRANSACTION_STATUSES, default='XX')
+    name = models.CharField(max_length=128, blank=True)
+    email = models.EmailField(blank=True)
     date_created = models.DateTimeField(default=datetime.datetime.utcnow)
+    date_processed = models.DateTimeField(blank=True, null=True)
     timestamp = models.DateTimeField(default=datetime.datetime.utcnow)
     
     def __unicode__(self):
