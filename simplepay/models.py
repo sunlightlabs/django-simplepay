@@ -131,6 +131,9 @@ class Transaction(models.Model):
     date_processed = models.DateTimeField(blank=True, null=True)
     timestamp = models.DateTimeField(default=datetime.datetime.utcnow)
     
+    class Meta:
+        ordering = ('-date_created',)
+    
     def __unicode__(self):
         return self.reference_id
     
@@ -144,6 +147,12 @@ class Transaction(models.Model):
         if self.amount:
             data['amount'] = self.amount
         return self.button.get_form(data)
+
+    def short_amazon_id(self):
+        return u"%s..." % self.amazon_id[:8] if self.amazon_id else u''
+    
+    def short_reference_id(self):
+        return u"%s..." % self.reference_id[:8]
 
 class Message(models.Model):
     transaction = models.ForeignKey(Transaction, related_name="messages")

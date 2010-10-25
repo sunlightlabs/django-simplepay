@@ -5,6 +5,8 @@ class MessageInline(admin.TabularInline):
     model = Message
 
 class TransactionAdmin(admin.ModelAdmin):
+    list_display = ('short_reference_id','short_amazon_id','status','amount','name','email','date_created','date_processed')
+    list_filter = ('status',)
     inlines = (MessageInline,)
 
 class MessageAdmin(admin.ModelAdmin):
