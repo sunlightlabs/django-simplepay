@@ -109,10 +109,14 @@ def ipn(request, reference_id):
 
 def _update_transaction(reference_id, data):
     
-    txn, created = Transaction.objects.get_or_create(reference_id=reference_id)
-    if created:
-        btn = SimplePayButton.objects.get(description=data.get('paymentReason', ''))
-        txn.button = btn
+    try:
+        txn = Transaction.objects.get(reference_id=reference_id)
+    except Transaction.DoesNotExist:
+        button = SimplePayButton.objects.get(description=data.get('paymentReason', ''))
+        txn = Transaction(
+            reference_id=reference_id,
+            button=button,
+        )
     
     if 'status' in data:
         txn.status = data['status']
