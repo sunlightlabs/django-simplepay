@@ -1,7 +1,10 @@
 from django.core.management.base import BaseCommand, CommandError
 from simplepay.models import Transaction
 from simplepay.views import _parse_date
-import json
+try:
+    import json
+except ImportError:
+    import simplejson as json
 
 class Command(BaseCommand):
     args = ''

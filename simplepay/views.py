@@ -6,7 +6,10 @@ from simplepay import ACCESS_KEY, SECRET_KEY, HOST, PATH
 from simplepay import api
 from simplepay.models import SimplePayButton, Transaction, Message
 import datetime
-import json
+try:
+    import json
+except ImportError:
+    import simplejson as json
 
 REDIRECT = getattr(settings, 'SIMPLEPAY_COMPLETE_REDIRECT', None)
 
